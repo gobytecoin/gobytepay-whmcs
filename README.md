@@ -38,7 +38,7 @@ Installations
 
 - Click on Setup > Payments > Payment Gateways.
 
-- On "Activate Gateway" drop down menu, Choose "GoBytePay Online Payment Gateway" and click the [Activate] button.
+- On "Activate Gateway" drop down menu, Choose "GoByte Pay" and click the [Activate] button.
 
 - Click on "Update"
 
