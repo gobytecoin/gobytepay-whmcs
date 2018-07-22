@@ -16,11 +16,11 @@ if(!function_exists('gobytepay_tablename')) {
     function gobytepay_curl($type, $call, $client_id, $client_secret, $params) {
 
         $base_link = 'https://portal.gobytepay.com/api/v1/'.$call;
-     
+
         if (!function_exists('curl_init')){
             die('cURL not installed.');
         }
-     
+
      // echo $base_link;
 
         $ch = curl_init();
@@ -47,7 +47,7 @@ if(!function_exists('gobytepay_tablename')) {
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         $output = curl_exec($ch);
         curl_close($ch);
-       
+
         if ($array = json_decode($output)) {
             // var_dump($array->url);
             return $array;
@@ -171,14 +171,14 @@ if(!function_exists('gobytepay_tablename')) {
         if ($check_existing) {
             // cancel existing
             $cancel_old_bill = gobytepay_curl('DELETE', 'bill/'.$check_existing->bill_id, $client_id, $client_secret, []);
-            
+
             $delete_existing = Capsule::table(gobytepay_tablename())->where('invoice_id', $invoiceId)->delete();
-            
+
         }
 
-        $params = ['title' => 'Payment for Invoice #'.$invoiceId, 'currency' => $currencyCode, 'amount' => $amount, 'default_currency' => $default_currency, 'redirect_url' => $returnUrl, 'callback_url' => $systemUrl.'/modules/gateways/callback/gobytepay.php'];
+        $params = ['title' => 'Payment for Invoice #'.$invoiceId, 'currency' => $currencyCode, 'amount' => $amount, 'default_currency' => $default_currency, 'redirect_url' => $returnUrl, 'callback_url' => $systemUrl.'/modules/gateways/callback/gobytepay_callback.php'];
 
-       
+
         // die($client_id);
         $output = gobytepay_curl('POST', 'bill', $client_id, $client_secret, $params);
 

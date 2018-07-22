@@ -45,7 +45,7 @@ if ($output) {
     if ($output->original_currency_amount) {
         $paymentAmount = $output->original_currency_amount;
     } else {
-       $paymentAmount = $output->amount; 
+       $paymentAmount = $output->amount;
     }
     $paymentFee = 0;
 
@@ -57,7 +57,7 @@ if ($output) {
         $transactionStatus = 'Callback: ' . $transactionState;
         addInvoicePayment($invoiceId, $transactionId, $paymentAmount, $paymentFee, $gatewayModuleName);
         logTransaction($params['name'], $_POST, $transactionStatus);
-        
+
     } else {
         // Nothing to do
     }
