@@ -18,7 +18,7 @@ Notes
 
 GoByte Network Team is not responsible for any problems that might arise from the use of this module.
 Use at your own risk. Please backup any critical data before proceeding. For any query or
-assistance, please email dev@gobyte.network
+assistance, please email support@gobytepay.com
 
 
 Installations
@@ -54,4 +54,13 @@ You can contribute to this plugin by sending the pull request to this repository
 Issues
 ------------
 
-Submit issue to this repository or email to our dev@gobyte.network
+Submit issue to this repository or email to our support@gobytepay.com
+
+Support
+-------
+
+Merchant Technical Support / Customer Care : support@gobytepay.com <br>
+Sales/Reseller Enquiry : sales@gobytepay.com <br>
+Marketing Campaign : marketing@gobytepay.com <br>
+R&D and Tech-related Suggestion : dev@gobytepay.com <br>
+Abuse Reporting : abuse@gobytepay.com
