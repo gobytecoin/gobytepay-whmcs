@@ -170,10 +170,9 @@ if(!function_exists('gobytepay_tablename')) {
 
         if ($check_existing) {
             // cancel existing
-            $cancel_old_bill = gobytepay_curl('DELETE', 'bill/'.$check_existing->bill_id, $client_id, $client_secret, []);
+            //$cancel_old_bill = gobytepay_curl('DELETE', 'bill/'.$check_existing->bill_id, $client_id, $client_secret, []);
 
-            $delete_existing = Capsule::table(gobytepay_tablename())->where('invoice_id', $invoiceId)->delete();
-
+            //$delete_existing = Capsule::table(gobytepay_tablename())->where('invoice_id', $invoiceId)->delete();
         }
 
         $params = ['title' => 'Payment for Invoice #'.$invoiceId, 'currency' => $currencyCode, 'amount' => $amount, 'default_currency' => $default_currency, 'redirect_url' => $returnUrl, 'callback_url' => $systemUrl.'/modules/gateways/callback/gobytepay_callback.php'];
