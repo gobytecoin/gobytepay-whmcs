@@ -63,4 +63,3 @@ Merchant Technical Support / Customer Care : support@gobytepay.com <br>
 Sales/Reseller Enquiry : sales@gobytepay.com <br>
 Marketing Campaign : marketing@gobytepay.com <br>
 R&D and Tech-related Suggestion : dev@gobytepay.com <br>
-Abuse Reporting : abuse@gobytepay.com
