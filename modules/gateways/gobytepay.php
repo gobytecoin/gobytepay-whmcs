@@ -15,7 +15,7 @@ if(!function_exists('gobytepay_tablename')) {
 
     function gobytepay_curl($type, $call, $client_id, $client_secret, $params) {
 
-        $base_link = 'https://gobytepay.test/api/v1/'.$call;
+        $base_link = 'https://portal.gobytepay.com/api/v1/'.$call;
 
         if (!function_exists('curl_init')){
             die('cURL not installed.');
