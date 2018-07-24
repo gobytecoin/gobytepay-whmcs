@@ -38,27 +38,4 @@ $default_currency = $params['defaultCurrency'];
 
 $output = gobytepay_curl('GET', 'bill/'.$bill_id, $client_id, $client_secret, $params);
 
-if ($output) {
-    $success = ($output->status == 1);
-    $invoiceId = $bill->invoice_id;
-    $transactionId = $output->uid;
-    if ($output->original_currency_amount) {
-        $paymentAmount = $output->original_currency_amount;
-    } else {
-       $paymentAmount = $output->amount;
-    }
-    $paymentFee = 0;
-
-    if ($output->status == 1) {
-
-        $invoiceId = checkCbInvoiceID($invoiceId, $params['name']);
-
-        checkCbTransID($transactionId);
-        $transactionStatus = 'Callback: ' . $transactionState;
-        addInvoicePayment($invoiceId, $transactionId, $paymentAmount, $paymentFee, $gatewayModuleName);
-        logTransaction($params['name'], $_POST, $transactionStatus);
-
-    } else {
-        // Nothing to do
-    }
-}
+gobytepay_check_payment_status($bill, $output, $client_id, $client_secret, $params);

@@ -15,7 +15,7 @@ if(!function_exists('gobytepay_tablename')) {
 
     function gobytepay_curl($type, $call, $client_id, $client_secret, $params) {
 
-        $base_link = 'https://portal.gobytepay.com/api/v1/'.$call;
+        $base_link = 'https://gobytepay.test/api/v1/'.$call;
 
         if (!function_exists('curl_init')){
             die('cURL not installed.');
@@ -169,31 +169,82 @@ if(!function_exists('gobytepay_tablename')) {
         $check_existing = Capsule::table(gobytepay_tablename())->where('invoice_id', $invoiceId)->first();
 
         if ($check_existing) {
-            // cancel existing
-            //$cancel_old_bill = gobytepay_curl('DELETE', 'bill/'.$check_existing->bill_id, $client_id, $client_secret, []);
 
-            //$delete_existing = Capsule::table(gobytepay_tablename())->where('invoice_id', $invoiceId)->delete();
+            // if paid
+            $output = gobytepay_curl('GET', 'bill/'.$check_existing->bill_id, $client_id, $client_secret, $params);
+
+            if ($output) {
+                // print_r($output);
+                // die();
+                if ($output->status == 1) {
+                    gobytepay_check_payment_status($check_existing, $output, $client_id, $client_secret, $params);
+                    return '<script>location.reload();</script><meta http-equiv="refresh">';
+                } elseif ($output->status == 0) {
+                    // do nothing since unpaids
+                } else {
+                    $cancel_old_bill = gobytepay_curl('DELETE', 'bill/'.$check_existing->bill_id, $client_id, $client_secret, []);
+
+                    $delete_existing = Capsule::table(gobytepay_tablename())->where('invoice_id', $invoiceId)->delete(); 
+                    $output = false;
+                }
+            }
+
         }
 
-        $params = ['title' => 'Payment for Invoice #'.$invoiceId, 'currency' => $currencyCode, 'amount' => $amount, 'default_currency' => $default_currency, 'redirect_url' => $returnUrl, 'callback_url' => $systemUrl.'/modules/gateways/callback/gobytepay_callback.php'];
+        if (!$output) {
+            $params = ['title' => 'Payment for Invoice #'.$invoiceId, 'currency' => $currencyCode, 'amount' => $amount, 'default_currency' => $default_currency, 'redirect_url' => $returnUrl, 'callback_url' => $systemUrl.'/modules/gateways/callback/gobytepay_callback.php'];
 
 
-        // die($client_id);
-        $output = gobytepay_curl('POST', 'bill', $client_id, $client_secret, $params);
+            // die($client_id);
+            $output = gobytepay_curl('POST', 'bill', $client_id, $client_secret, $params);
 
-        if (isset($output->url)) {
+            if (isset($output->url)) {
+                
+                Capsule::table(gobytepay_tablename())->insert(['invoice_id' => $invoiceId, 'bill_id' => $output->uid]);
+
+            } else {
+                //print_r($output);
+                $htmlOutput = 'GoByte Pay cannot be used at the moment. Reason: '. $output->error;
+                $output = false;
+            }
+
+            
+        } 
+
+        if ($output) {   
             $htmlOutput = '<form method="get" action="' . $output->url . '">';
             $htmlOutput .= '<input type="submit" value="' . $langPayNow . '" />';
             $htmlOutput .= '</form>';
-
-            Capsule::table(gobytepay_tablename())->insert(['invoice_id' => $invoiceId, 'bill_id' => $output->uid]);
-
-        } else {
-            //print_r($output);
-            $htmlOutput = 'GoByte Pay cannot be used at the moment. Reason: '. $output->error;
         }
 
         return $htmlOutput;
+    }
+
+    function gobytepay_check_payment_status($bill, $output, $client_id, $client_secret, $params) {
+        if ($output) {
+            $success = ($output->status == 1);
+            $invoiceId = $bill->invoice_id;
+            $transactionId = $output->uid;
+            if ($output->original_currency_amount) {
+                $paymentAmount = $output->original_currency_amount;
+            } else {
+               $paymentAmount = $output->amount;
+            }
+            $paymentFee = 0;
+
+            if ($output->status == 1) {
+
+                $invoiceId = checkCbInvoiceID($invoiceId, $params['name']);
+
+                checkCbTransID($transactionId);
+                $transactionStatus = 'Callback: ' . $transactionState;
+                addInvoicePayment($invoiceId, $transactionId, $paymentAmount, $paymentFee, $gatewayModuleName);
+                logTransaction($params['name'], $_POST, $transactionStatus);
+
+            } else {
+                // Nothing to do
+            }
+        }
     }
 
     function gobytepay_create_table()
@@ -201,9 +252,11 @@ if(!function_exists('gobytepay_tablename')) {
 
         if (!Capsule::schema()->hasTable(gobytepay_tablename())) {
             Capsule::schema()->create(gobytepay_tablename(), function ($table) {
-                $table->integer('invoice_id')->primary();
+                $table->increments('id');
+                $table->integer('invoice_id');
                 $table->string('bill_id');
             });
         }
     }
+
 }
