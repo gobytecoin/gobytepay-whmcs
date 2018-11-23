@@ -21,17 +21,13 @@ if(!function_exists('gobytepay_tablename')) {
             die('cURL not installed.');
         }
 
-     // echo $base_link;
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $base_link);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_USERPWD, $client_id.":".$client_secret);
-        // echo '?'.$client_id.'?';
-        // echo $client_secret;
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
 
         $type = strtoupper($type);
 
@@ -49,15 +45,12 @@ if(!function_exists('gobytepay_tablename')) {
         curl_close($ch);
 
         if ($array = json_decode($output)) {
-            // var_dump($array->url);
             return $array;
         } else {
-            //var_dump($output);
             die('Cannot connect to GoByte Pay!');
 
         }
     }
-
 
     function gobytepay_MetaData()
     {
@@ -117,8 +110,6 @@ if(!function_exists('gobytepay_tablename')) {
         $client_id = $params['clientId'];
         $client_secret = $params['clientSecret'];
         $default_currency = $params['defaultCurrency'];
-        // print_r($params);
-        // die();
 
         // Invoice Parameters
         $invoiceId = $params['invoiceid'];
@@ -174,8 +165,6 @@ if(!function_exists('gobytepay_tablename')) {
             $output = gobytepay_curl('GET', 'bill/'.$check_existing->bill_id, $client_id, $client_secret, $params);
 
             if ($output) {
-                // print_r($output);
-                // die();
                 if ($output->status == 1) {
                     gobytepay_check_payment_status($check_existing, $output, $client_id, $client_secret, $params);
                     return '<script>location.reload();</script><meta http-equiv="refresh">';
@@ -194,8 +183,6 @@ if(!function_exists('gobytepay_tablename')) {
         if (!$output) {
             $params = ['title' => 'Payment for Invoice #'.$invoiceId, 'currency' => $currencyCode, 'amount' => $amount, 'default_currency' => $default_currency, 'redirect_url' => $returnUrl, 'callback_url' => $systemUrl.'/modules/gateways/callback/gobytepay_callback.php'];
 
-
-            // die($client_id);
             $output = gobytepay_curl('POST', 'bill', $client_id, $client_secret, $params);
 
             if (isset($output->url)) {
@@ -203,9 +190,10 @@ if(!function_exists('gobytepay_tablename')) {
                 Capsule::table(gobytepay_tablename())->insert(['invoice_id' => $invoiceId, 'bill_id' => $output->uid]);
 
             } else {
-                //print_r($output);
+                
                 $htmlOutput = 'GoByte Pay cannot be used at the moment. Reason: '. $output->error;
                 $output = false;
+                
             }
 
             
@@ -213,7 +201,7 @@ if(!function_exists('gobytepay_tablename')) {
 
         if ($output) {   
             $htmlOutput = '<form method="get" action="' . $output->url . '">';
-            $htmlOutput .= '<input type="submit" value="' . $langPayNow . '" />';
+            $htmlOutput .= ' <input type="submit" value="' . $langPayNow . '" />';
             $htmlOutput .= '</form>';
         }
 
